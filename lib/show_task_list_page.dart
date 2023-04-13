@@ -44,14 +44,18 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
     }
 
     void onDismissed(int index, Actions action) {
-      final task = appState.tasks[index];
+      final task = tasks[index];
 
       switch (action) {
         case Actions.done:
           appState.addToCompleted(task);
           break;
         case Actions.favorites:
-          appState.addToFavorites(task);
+          if (!task.isFavorite) {
+            appState.addToFavorites(task);
+          } else {
+            appState.removeFromFavorites(task);
+          }
           break;
         case Actions.delete:
           appState.removeTask(task);
@@ -74,16 +78,69 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
       }
     }
 
-    Widget buildTaskListTile(Task task) => Builder(
-      builder: (context) => ListTile(
+    Widget buildTaskListTile(Task task) {
+      var hasDate = false;
+      var weekDay = '';
+      var day = -1;
+      var month = -1;
+
+      var hour = -1;
+      var minute = -1;
+
+      if (task.dueDate != null) {
+        hasDate = true;
+
+        switch(task.dueDate!.weekday) {
+          case 1:
+            weekDay = 'mon';
+            break;
+          case 2:
+            weekDay = 'tue';
+            break;
+          case 3:
+            weekDay = 'wed';
+            break;
+          case 4:
+            weekDay = 'thu';
+            break;
+          case 5:
+            weekDay = 'fri';
+            break;
+          case 6:
+            weekDay = 'sat';
+            break;
+          case 7:
+              weekDay = 'sun';
+            break;
+          default: break;
+        }
+        day = task.dueDate!.day;
+        month = task.dueDate!.month;
+
+        hour = task.dueDate!.hour;
+        minute = task.dueDate!.minute;
+
+        print('DATA: ${task.dueDate}');
+      }
+
+      return ListTile(
         contentPadding: EdgeInsets.only(left: 30, right: 5),
         title: Text(task.title, style: TextStyle(color: Colors.white),),
         leading: task.type.icon,
+        trailing: Visibility(
+          visible: hasDate,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Chip(
+              label: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: Colors.white),),
+            ),
+          ),
+        ),
         onTap: () {
           // ToDo - show details
         },
-      )
-    );
+      );
+    }
 
     Widget taskList;
   
@@ -112,7 +169,7 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
                 ),
                 SlidableAction(
                   backgroundColor: Color.fromARGB(255, 214, 195, 20),
-                  icon: Icons.star_rounded,
+                  icon: tasks[index].isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
                   onPressed: (context) => onDismissed(index, Actions.favorites)
                 )
               ]

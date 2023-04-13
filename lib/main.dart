@@ -76,9 +76,9 @@ class MyAppState extends ChangeNotifier {
   ];
 
   List<Task> _tasks = [
-    Task(title: 'Task 1', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 7, 10)),
-    Task(title: 'Task 2', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 5, 16)),
-    Task(title: 'Task 3', type: TaskType(name: 'phone', icon: Icon(Icons.phone_android_rounded)), dueDate: DateTime(2023, 10, 30)),
+    Task(title: 'Task 1', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded))),
+    Task(title: 'Task 2', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded))),
+    Task(title: 'Task 3', type: TaskType(name: 'phone', icon: Icon(Icons.phone_rounded))),
   ];
 
   List<Task> _completedTasks = [];
@@ -109,6 +109,11 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeFromFavorites(Task task) {
+    task.removeFromFavorites();
+    notifyListeners();
+  }
+
   void addToCompleted(Task task) {
     _tasks.remove(task);
     _completedTasks.add(task);
@@ -131,20 +136,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  late TextEditingController _textController;
-
-  @override
-  void initState() {
-    super.initState();
-    _textController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
-  }
-
   void _showBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -162,11 +153,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final appState = context.watch<MyAppState>();
 
     return DefaultTabController(
-      length: appState.types.length+3,
+      length: appState.types.length+2,
       initialIndex: 1,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Task List'),
+          title: Text('Task Manager'),
           centerTitle: true,
           bottom:
             TabBar(
@@ -178,15 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Tab(text: 'All Tasks'),
                 for (var type in appState.types)
                   Tab(text: type.name),
-                Tab(text: '+ New Label'),
               ],
-              onTap: (index) {
-                if (index == appState.types.length+2) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => AddNewListPage())
-                  );
-                }
-              },
             ),
         ),
         body: TabBarView(
@@ -195,7 +178,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ShowTaskListPage('todo'),
             for(var type in appState.types)
               ShowTaskListPage(type.name),
-            Container(),
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked ,
@@ -214,11 +196,15 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.more_horiz_rounded),
+                icon: Icon(Icons.menu_rounded),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.menu_rounded)
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => AddNewListPage())
+                  );
+                },
+                child: Text('+ New List'),
               )
             ],
           ),
@@ -239,7 +225,6 @@ class ModalContent extends StatefulWidget {
 }
 
 class _ModalContentState extends State<ModalContent> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -309,7 +294,7 @@ class _ModalContentState extends State<ModalContent> {
     final appState = Provider.of<MyAppState>(context, listen: false);
     late Task newTask;
 
-    newTask = Task(title: name, type: type!);
+    newTask = Task(title: name, type: type);
 
     if (_hasDate) {
       newTask.changeDate(date);
@@ -348,7 +333,7 @@ class _ModalContentState extends State<ModalContent> {
                   border: InputBorder.none,
                 ),
                 onChanged: (value) {
-                  _isFormValid = value!.isNotEmpty;
+                  _isFormValid = value.isNotEmpty;
                 },
                 onSaved: (value) {
                   setState(() {
