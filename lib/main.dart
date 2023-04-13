@@ -43,6 +43,10 @@ class Task {
     this.description = description;
   }
 
+  void changeType(TaskType newType) {
+    type = newType;
+  }
+
 }
 
 class MyApp extends StatelessWidget {
@@ -76,9 +80,9 @@ class MyAppState extends ChangeNotifier {
   ];
 
   List<Task> _tasks = [
-    Task(title: 'Task 1', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded))),
-    Task(title: 'Task 2', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded))),
-    Task(title: 'Task 3', type: TaskType(name: 'phone', icon: Icon(Icons.phone_rounded))),
+    Task(title: 'Task 1', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 6, 3, 17, 50)),
+    Task(title: 'Task 2', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 5, 20, 13, 7)),
+    Task(title: 'Task 3', type: TaskType(name: 'phone', icon: Icon(Icons.phone_rounded)), dueDate: DateTime(2023, 6, 3, 17, 50)),
   ];
 
   List<Task> _completedTasks = [];
@@ -88,6 +92,12 @@ class MyAppState extends ChangeNotifier {
   List<Task> get tasks => _tasks;
   List<Task> get completedTasks => _completedTasks;
   List<TaskType> get types => _types;
+
+  void replaceTypes() {
+    for (int i = 0; i < _tasks.length; i++) {
+      _tasks[i].changeType(_types[i]);
+    }
+  }
 
   void addTask(Task newTask) {
     _tasks.add(newTask);
@@ -125,6 +135,16 @@ class MyAppState extends ChangeNotifier {
     _tasks.add(task);
     notifyListeners();
   }
+
+  void changeTaskDate(Task task, DateTime date) {
+    task.changeDate(date);
+    notifyListeners();
+  }
+
+  void changeTaskType(Task task, TaskType newType) {
+    task.changeType(newType);
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -135,6 +155,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  bool hasBeenReplaced = false;
 
   void _showBottomSheet() {
     showModalBottomSheet(
@@ -151,6 +173,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
+
+    if (!hasBeenReplaced) {
+      appState.replaceTypes();
+      setState(() {
+        hasBeenReplaced = true;
+      });
+    }
 
     return DefaultTabController(
       length: appState.types.length+2,
@@ -177,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ShowTaskListPage('favorites'),
             ShowTaskListPage('todo'),
             for(var type in appState.types)
-              ShowTaskListPage(type.name),
+              ShowTaskListPage(type.name)
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked ,

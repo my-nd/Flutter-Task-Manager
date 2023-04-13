@@ -2,6 +2,7 @@ import 'package:task_manager/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:task_manager/task_details_page.dart';
 
 enum Actions {
   done,
@@ -29,6 +30,11 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
     var appState = context.watch<MyAppState>();
 
     var tasks = List<Task>.from(appState.tasks);
+
+    for(var task in tasks) {
+      print(task.type.name);
+    }
+
     var completed = List<Task>.from(appState.completedTasks);
 
     switch (widget.taskTypeName) {
@@ -84,8 +90,8 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
       var day = -1;
       var month = -1;
 
-      var hour = -1;
-      var minute = -1;
+      var hour = '';
+      var minute = '';
 
       if (task.dueDate != null) {
         hasDate = true;
@@ -117,10 +123,18 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
         day = task.dueDate!.day;
         month = task.dueDate!.month;
 
-        hour = task.dueDate!.hour;
-        minute = task.dueDate!.minute;
+        if (task.dueDate!.hour < 10) {
+          hour = '0${task.dueDate!.hour}';
+        } else {
+          hour = '${task.dueDate!.hour}';
+        }
 
-        print('DATA: ${task.dueDate}');
+        if(task.dueDate!.minute < 10) {
+          minute = '0${task.dueDate!.minute}';
+        } else {
+          minute = '${task.dueDate!.minute}';
+        }
+
       }
 
       return ListTile(
@@ -136,8 +150,13 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
             ),
           ),
         ),
-        onTap: () {
-          // ToDo - show details
+        onTap: () async {
+          TaskType newType = await Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => TaskDetailsPage(task))
+          );
+          setState(() {
+            appState.changeTaskType(task, newType);
+          });
         },
       );
     }
@@ -157,24 +176,6 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
           return Slidable(
             key: Key(task.title),
             startActionPane: ActionPane(
-              motion: const StretchMotion(),
-              dismissible: DismissiblePane(
-                onDismissed: () => onDismissed(index, Actions.done)
-              ),
-              children: [
-                SlidableAction(
-                  backgroundColor: Colors.blue,
-                  icon: Icons.done_rounded,
-                  onPressed: (context) => onDismissed(index, Actions.done)
-                ),
-                SlidableAction(
-                  backgroundColor: Color.fromARGB(255, 214, 195, 20),
-                  icon: tasks[index].isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                  onPressed: (context) => onDismissed(index, Actions.favorites)
-                )
-              ]
-            ),
-            endActionPane: ActionPane(
               motion: BehindMotion(),
               dismissible: DismissiblePane(
                 onDismissed: () => onDismissed(index, Actions.delete)
@@ -186,6 +187,24 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
                   label: 'Delete',
                   onPressed: (context) => onDismissed(index, Actions.delete),
                 )
+              ]
+            ),
+            endActionPane: ActionPane(
+              motion: const StretchMotion(),
+              dismissible: DismissiblePane(
+                onDismissed: () => onDismissed(index, Actions.done)
+              ),
+              children: [
+                SlidableAction(
+                  backgroundColor: Color.fromARGB(255, 214, 195, 20),
+                  icon: tasks[index].isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                  onPressed: (context) => onDismissed(index, Actions.favorites)
+                ),
+                SlidableAction(
+                  backgroundColor: Colors.blue,
+                  icon: Icons.done_rounded,
+                  onPressed: (context) => onDismissed(index, Actions.done)
+                ),
               ]
             ),
             child: buildTaskListTile(task) 
@@ -212,19 +231,6 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
                       return Slidable(
                         key: Key(completedTask.title),
                         startActionPane: ActionPane(
-                          motion: DrawerMotion(),
-                          dismissible: DismissiblePane(
-                            onDismissed: () => onUndoneTask(index, Actions.undone)
-                          ),
-                          children: [
-                            SlidableAction(
-                              backgroundColor: Color.fromARGB(255, 28,  27,31),
-                              label: 'Undone',
-                              onPressed: (context) => onUndoneTask(index, Actions.undone)
-                            )
-                          ]
-                        ),
-                        endActionPane: ActionPane(
                           motion: BehindMotion(),
                           dismissible: DismissiblePane(
                             onDismissed: () => onUndoneTask(index, Actions.delete)
@@ -234,6 +240,19 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
                               backgroundColor: Colors.red,
                               icon: Icons.delete_rounded,
                               onPressed: (context) => onUndoneTask(index, Actions.delete)
+                            )
+                          ]
+                        ),
+                        endActionPane: ActionPane(
+                          motion: DrawerMotion(),
+                          dismissible: DismissiblePane(
+                            onDismissed: () => onUndoneTask(index, Actions.undone)
+                          ),
+                          children: [
+                            SlidableAction(
+                              backgroundColor: Color.fromARGB(255, 28,  27,31),
+                              label: 'Undone',
+                              onPressed: (context) => onUndoneTask(index, Actions.undone)
                             )
                           ]
                         ),
@@ -251,7 +270,6 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
         );
     }
 
-    
     return taskList;
   }
 }

@@ -54,7 +54,7 @@ class _AddNewListPage extends State<AddNewListPage> {
     Icon(Icons.monetization_on_rounded),
     Icon(Icons.palette_rounded),
     Icon(Icons.photo_camera_rounded),
-    Icon(Icons.local_convenience_store_rounded),
+    Icon(Icons.restaurant_rounded),
     Icon(Icons.shopping_cart_rounded),
   ];
 
