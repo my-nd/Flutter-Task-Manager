@@ -216,7 +216,7 @@ class _TaskDetailsPage extends State<TaskDetailsPage> {
         ),
         child: Chip(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          label: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: Colors.white),),
+          label: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: DateTime.now().toLocal().isBefore(task.dueDate!) ? Colors.white : const Color.fromARGB(255, 255, 133, 125)),),
         ),
       ),
     );

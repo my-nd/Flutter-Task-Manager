@@ -140,7 +140,7 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
           visible: hasDate,
           child: Padding(
             padding: const EdgeInsets.only(right: 15.0),
-            child: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: Colors.white),),
+            child: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: DateTime.now().toLocal().isBefore(task.dueDate!) ? Colors.white : const Color.fromARGB(255, 255, 133, 125)),),
           ),
         ),
         onTap: () async {

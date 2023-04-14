@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:task_manager/show_task_list_page.dart';
 import 'package:task_manager/add_new_list_page.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  runApp(MyApp());
+} 
 
 class TaskType {
   String name;
@@ -55,11 +64,12 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => MyAppState(),
       child: MaterialApp(
+        restorationScopeId: "root",
         debugShowCheckedModeBanner: false,
         title: 'Task List',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 0, 0, 0)),
+          colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 0, 0, 0)), 
         ),
         darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
           textTheme: GoogleFonts.montserratTextTheme()
@@ -273,7 +283,7 @@ class _ModalContentState extends State<ModalContent> {
 
   String name = '';
   String description = '';
-  DateTime date = DateTime.now();
+  DateTime date = DateTime.now().toLocal();
   late TaskType type;
 
   Icon iconToDisplay = Icon(Icons.filter_frames_rounded, color: Color.fromARGB(255, 131, 73, 232),);
@@ -370,7 +380,9 @@ class _ModalContentState extends State<ModalContent> {
                   border: InputBorder.none,
                 ),
                 onChanged: (value) {
-                  _isFormValid = value.isNotEmpty;
+                  setState(() {
+                    _isFormValid = value.isNotEmpty;
+                  });
                 },
                 onSaved: (value) {
                   setState(() {
@@ -457,8 +469,8 @@ class _DatePickerModal extends State<DatePickerModal> {
 
   int _expandedIndex = 0;
 
-  DateTime _selectedDate = DateTime.now();
-  DateTime _selectedTime = DateTime.now();
+  DateTime _selectedDate = DateTime.now().toLocal();
+  DateTime _selectedTime = DateTime.now().toLocal();
 
   @override
   Widget build(BuildContext context) {
@@ -514,7 +526,7 @@ class _DatePickerModal extends State<DatePickerModal> {
                 );
               },
               body: CalendarDatePicker(
-                initialDate: DateTime.now(),
+                initialDate: DateTime.now().toLocal(),
                 firstDate: DateTime(2015),
                 lastDate: DateTime(2030),
                 onDateChanged: (date) {
@@ -538,7 +550,7 @@ class _DatePickerModal extends State<DatePickerModal> {
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.time,
                   use24hFormat: true,
-                  initialDateTime: DateTime.now(),
+                  initialDateTime: DateTime.now().toLocal(),
                   onDateTimeChanged: (time) {
                     _selectedTime = time;
                   },

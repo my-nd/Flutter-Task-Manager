@@ -118,7 +118,7 @@ class _AddNewListPage extends State<AddNewListPage> {
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: ElevatedButton(
-              child: areIconsVisible ? Text('Hide icons') : Text('Show icons'),
+              child: selectedIcon,
               onPressed: () {
                 setState(() {
                   areIconsVisible = !areIconsVisible;
