@@ -75,14 +75,14 @@ class MyAppState extends ChangeNotifier {
 
   List<TaskType> _types = [
     TaskType(name: 'email', icon: Icon(Icons.email_rounded)),
-    TaskType(name: 'phone', icon: Icon(Icons.phone_android_rounded)),
+    TaskType(name: 'phone', icon: Icon(Icons.phone_rounded)),
     TaskType(name: 'meeting', icon: Icon(Icons.meeting_room_rounded)),
   ];
 
   List<Task> _tasks = [
-    Task(title: 'Task 1', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 6, 3, 17, 50)),
-    Task(title: 'Task 2', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 5, 20, 13, 7)),
-    Task(title: 'Task 3', type: TaskType(name: 'phone', icon: Icon(Icons.phone_rounded)), dueDate: DateTime(2023, 6, 3, 17, 50)),
+    Task(title: 'Send resumé', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 6, 3, 17, 50)),
+    Task(title: 'Call company', type: TaskType(name: 'email', icon: Icon(Icons.email_rounded)), dueDate: DateTime(2023, 5, 20, 13, 7)),
+    Task(title: 'Kick-off', type: TaskType(name: 'phone', icon: Icon(Icons.phone_rounded)), dueDate: DateTime(2023, 6, 3, 17, 50)),
   ];
 
   List<Task> _completedTasks = [];
@@ -134,6 +134,14 @@ class MyAppState extends ChangeNotifier {
     _completedTasks.remove(task);
     _tasks.add(task);
     notifyListeners();
+  }
+
+  void changeTaskTitle(Task task, String newTitle) {
+    task.changeTitle(newTitle);
+  }
+
+  void changeTaskDescription(Task task, String newDesc) {
+    task.changeDescription(newDesc);
   }
 
   void changeTaskDate(Task task, DateTime date) {

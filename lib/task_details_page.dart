@@ -21,6 +21,18 @@ class _TaskDetailsPage extends State<TaskDetailsPage> {
   var hour = '';
   var minute = '';
 
+
+  late TextEditingController _titleController, _descrController;
+  
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleController = TextEditingController(text: widget.task.title);
+    _descrController = TextEditingController(text: widget.task.description);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
@@ -32,40 +44,78 @@ class _TaskDetailsPage extends State<TaskDetailsPage> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(selectedType),
-          icon: Icon(Icons.arrow_back_ios_rounded),
+          icon: Icon(Icons.arrow_back_ios_rounded, color: Color.fromARGB(255, 143, 95, 255),),
         ),
+        title: Text('Edit task', style: TextStyle(color: Colors.white),),
+        actions: [
+          IconButton(
+            color: Color.fromARGB(255, 143, 95, 255),
+            icon: widget.task.isFavorite ? Icon(Icons.star_rounded) : Icon(Icons.star_outline_rounded),
+            onPressed: () {
+              setState(() {
+                widget.task.isFavorite ?
+                  appState.removeFromFavorites(widget.task) :
+                  widget.task.isFavorite = !widget.task.isFavorite;
+
+              });
+            },
+          ),
+          SizedBox(width: 5,),
+          IconButton(
+            color: Color.fromARGB(255, 143, 95, 255),
+            icon: Icon(Icons.delete_rounded),
+            onPressed: () {
+              setState(() {
+                appState.removeTask(widget.task);
+                Navigator.of(context).pop();
+              });
+            },
+          ),
+          SizedBox(width: 15),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.task.title, style: TextStyle(color: Colors.white),),
-            Padding(
-              padding: const EdgeInsets.only(top: 5, bottom: 5),
-              child: DropdownButton<TaskType>(
-                value: widget.task.type, 
-                alignment: AlignmentDirectional.bottomStart,
-                icon: Icon(Icons.arrow_downward, color: const Color.fromARGB(255, 121, 58, 231),),
-                iconSize: 10, 
-                elevation: 16, 
-                style: TextStyle(color: const Color.fromARGB(255, 121, 58, 231)),
-                onChanged: (TaskType? newValue) {
-                  setState(() {
-                    widget.task.type = newValue!;
-                    selectedType = newValue;
-                    print('SELECTED TYPE: $selectedType');
-                    appState.changeTaskType(widget.task, selectedType);
-                  });
-                },
-                underline: Container(),
-                items: appState.types.map<DropdownMenuItem<TaskType>>((TaskType value) {
-                  return DropdownMenuItem<TaskType>(
-                    value: value,
-                    child: Text(value.name),
-                  );
-                }).toList(),
+            DropdownButton<TaskType>(
+              value: widget.task.type, 
+              alignment: AlignmentDirectional.bottomStart,
+              icon: Icon(Icons.arrow_downward, color: const Color.fromARGB(255, 143, 95, 255),),
+              iconSize: 10, 
+              elevation: 16, 
+              style: TextStyle(color: const Color.fromARGB(255, 143, 95, 255)),
+              onChanged: (TaskType? newValue) {
+                setState(() {
+                  widget.task.type = newValue!;
+                  selectedType = newValue;
+                  appState.changeTaskType(widget.task, selectedType);
+                });
+              },
+              underline: Container(),
+              items: appState.types.map<DropdownMenuItem<TaskType>>((TaskType value) {
+                return DropdownMenuItem<TaskType>(
+                  value: value,
+                  child: Text(value.name),
+                );
+              }).toList(),
+            ),
+            TextField(
+              controller: _titleController,
+              style: TextStyle(color: Colors.white, fontSize: 30),
+              decoration: InputDecoration(
+                hintText: 'Enter title',
+                border: InputBorder.none,
               ),
+              onChanged: (value) {
+                if (value.isNotEmpty) {
+                  setState(() {
+                    widget.task.title = value;
+                    appState.changeTaskTitle(widget.task, value);
+                  });
+                }
+              },
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
@@ -74,6 +124,21 @@ class _TaskDetailsPage extends State<TaskDetailsPage> {
                   Padding(
                     padding: const EdgeInsets.only(right: 20.0),
                     child: Icon(Icons.description_outlined),
+                  ),
+                  Flexible(
+                    child: TextField(
+                      controller: _descrController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          widget.task.description = value;
+                          appState.changeTaskDescription(widget.task, value);
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),

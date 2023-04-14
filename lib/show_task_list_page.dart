@@ -30,11 +30,6 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
     var appState = context.watch<MyAppState>();
 
     var tasks = List<Task>.from(appState.tasks);
-
-    for(var task in tasks) {
-      print(task.type.name);
-    }
-
     var completed = List<Task>.from(appState.completedTasks);
 
     switch (widget.taskTypeName) {
@@ -138,25 +133,25 @@ class _ShowTaskListPage extends State<ShowTaskListPage> {
       }
 
       return ListTile(
-        contentPadding: EdgeInsets.only(left: 30, right: 5),
+        contentPadding: EdgeInsets.only(left: 25, right: 5),
         title: Text(task.title, style: TextStyle(color: Colors.white),),
         leading: task.type.icon,
         trailing: Visibility(
           visible: hasDate,
           child: Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Chip(
-              label: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: Colors.white),),
-            ),
+            padding: const EdgeInsets.only(right: 15.0),
+            child: Text('$weekDay, $day/$month, $hour:$minute', style: TextStyle(color: Colors.white),),
           ),
         ),
         onTap: () async {
-          TaskType newType = await Navigator.of(context).push(
+          TaskType? newType = await Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => TaskDetailsPage(task))
           );
-          setState(() {
-            appState.changeTaskType(task, newType);
-          });
+          if (newType != null) {
+            setState(() {
+              appState.changeTaskType(task, newType);
+            });
+          }
         },
       );
     }
